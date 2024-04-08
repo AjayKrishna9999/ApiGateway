@@ -1,0 +1,56 @@
+server:
+  port: 8000
+  
+spring:
+  application:
+    name: API-GATEWAY
+  profiles:
+    active: chaos-monkey
+    
+  cloud:
+    gateway:
+      routes:
+      - id: CITIZEN-SERVICE
+        uri:
+          lb://CITIZEN-SERVICE
+        predicates:
+        - Path=/CoWIN/**
+        
+      - id: VACCINATION-CENTER
+        uri:
+          lb://VACCINATION-CENTER
+        predicates:
+        - Path=/coWin/vaccine/**
+
+chaos:
+  monkey:
+    enabled: true
+    watcher:
+      service: true
+    assaults:
+      latencyActive: true
+
+management:
+  endpoint:
+    chaosmonkey:
+      enabled: true
+    chaosmonkeyjmx:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - chaosmonkey
+        
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+  
+      
